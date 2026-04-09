@@ -1,0 +1,16 @@
+[
+  {
+    "id": "4c21f71c-c934-41a2-869b-d9ba378639b7",
+    "username": "alex",
+    "passwordHash": "A6xnQhbz4Vx2HuGl4lXwZ5U2I8iziLRFnhP5eNfIRvQ=",
+    "displayName": "alex@alex.de",
+    "createdAt": "2026-04-09T09:10:41.8298957Z"
+  },
+  {
+    "id": "9e4f616a-55fd-41ff-ab73-429bc7570cab",
+    "username": "test",
+    "passwordHash": "A6xnQhbz4Vx2HuGl4lXwZ5U2I8iziLRFnhP5eNfIRvQ=",
+    "displayName": "test@test.de",
+    "createdAt": "2026-04-09T09:11:10.8853731Z"
+  }
+]

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CollabNotes</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--bg:#0f172a;--surface:#1e293b;--surface-hover:#334155;--border:#334155;--text:#e2e8f0;--text-muted:#94a3b8;--primary:#3b82f6;--primary-hover:#2563eb;--danger:#ef4444;--success:#22c55e;--warning:#f59e0b;--radius:12px;--shadow:0 4px 6px -1px rgba(0,0,0,.3)}
+        body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+        .hidden{display:none!important}
+        /* AUTH */
+        .auth-container{flex:1;display:flex;align-items:center;justify-content:center}
+        .auth-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;width:400px;max-width:90vw}
+        .auth-box h1{font-size:1.8rem;margin-bottom:8px;background:linear-gradient(135deg,var(--primary),#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .auth-box p{color:var(--text-muted);margin-bottom:24px;font-size:.9rem}
+        .form-group{margin-bottom:16px}
+        .form-group label{display:block;font-size:.85rem;color:var(--text-muted);margin-bottom:6px;font-weight:600}
+        .form-group input{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.95rem;outline:none;transition:border-color .2s}
+        .form-group input:focus{border-color:var(--primary)}
+        .auth-btn{width:100%;padding:12px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:background .2s;margin-top:8px}
+        .auth-btn:hover{background:var(--primary-hover)}
+        .auth-switch{text-align:center;margin-top:16px;font-size:.85rem;color:var(--text-muted)}
+        .auth-switch a{color:var(--primary);cursor:pointer;text-decoration:none;font-weight:600}
+        .auth-error{background:rgba(239,68,68,.15);border:1px solid var(--danger);color:var(--danger);padding:10px 14px;border-radius:8px;font-size:.85rem;margin-bottom:16px}
+        /* HEADER */
+        header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+        .logo{font-size:1.4rem;font-weight:700;background:linear-gradient(135deg,var(--primary),#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .header-right{display:flex;align-items:center;gap:16px}
+        .connection-status{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--text-muted)}
+        .status-dot{width:8px;height:8px;border-radius:50%;background:var(--danger);transition:background .3s}
+        .status-dot.connected{background:var(--success)}
+        .user-info{display:flex;align-items:center;gap:10px;font-size:.9rem}
+        .user-info .avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#fff}
+        .btn-logout{background:transparent;border:1px solid var(--border);color:var(--text-muted);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:600;transition:all .2s}
+        .btn-logout:hover{border-color:var(--danger);color:var(--danger)}
+        /* LAYOUT */
+        .main-layout{display:flex;flex:1;overflow:hidden}
+        .sidebar{width:340px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+        .sidebar-header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+        .sidebar-header h2{font-size:.95rem;font-weight:600}
+        .tabs{display:flex;border-bottom:1px solid var(--border)}
+        .tab{flex:1;padding:10px;text-align:center;font-size:.85rem;font-weight:600;cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;transition:all .2s}
+        .tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+        .tab:hover{color:var(--text)}
+        .btn{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s;display:flex;align-items:center;gap:6px}
+        .btn-primary{background:var(--primary);color:#fff}
+        .btn-primary:hover{background:var(--primary-hover)}
+        .btn-danger{background:transparent;color:var(--danger);padding:6px 10px}
+        .btn-danger:hover{background:rgba(239,68,68,.15)}
+        .btn-sm{padding:4px 10px;font-size:.78rem;border-radius:6px}
+        .note-list{flex:1;overflow-y:auto;padding:8px}
+        .note-item{padding:12px 14px;border-radius:var(--radius);cursor:pointer;transition:all .15s;margin-bottom:4px;border:1px solid transparent}
+        .note-item:hover{background:var(--surface-hover)}
+        .note-item.active{background:rgba(59,130,246,.15);border-color:var(--primary)}
+        .note-item-title{font-weight:600;font-size:.9rem;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .note-item-meta{font-size:.75rem;color:var(--text-muted);display:flex;justify-content:space-between}
+        .note-item-owner{font-size:.72rem;color:var(--primary);margin-bottom:2px}
+        /* EDITOR */
+        .editor-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+        .editor-toolbar{padding:10px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px}
+        .active-users{display:flex;align-items:center;gap:4px}
+        .user-badge{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-size:.7rem;font-weight:700;color:#fff;border:2px solid var(--bg)}
+        .title-input{width:100%;padding:10px 24px;font-size:1.5rem;font-weight:700;background:transparent;border:none;color:var(--text);outline:none;border-bottom:1px solid var(--border)}
+        .title-input::placeholder{color:var(--text-muted)}
+        .content-editor{flex:1;padding:16px 24px;font-size:1rem;line-height:1.7;background:transparent;border:none;color:var(--text);resize:none;outline:none;font-family:'Segoe UI',system-ui,sans-serif}
+        .content-editor::placeholder{color:var(--text-muted)}
+        .empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-muted);gap:12px}
+        .empty-state svg{width:64px;height:64px;opacity:.3}
+        .empty-state p{font-size:1rem}
+        .typing-indicator{font-size:.78rem;color:var(--warning);padding:0 24px 6px;min-height:22px}
+        /* COLLAB PANEL */
+        .collab-panel{padding:12px 24px;border-top:1px solid var(--border);background:var(--surface)}
+        .collab-panel h3{font-size:.85rem;font-weight:600;margin-bottom:8px}
+        .collab-input-row{display:flex;gap:8px;margin-bottom:10px}
+        .collab-input-row input{flex:1;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;outline:none}
+        .collab-input-row input:focus{border-color:var(--primary)}
+        .collab-list{display:flex;flex-wrap:wrap;gap:6px}
+        .collab-tag{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:4px 12px 4px 10px;font-size:.8rem}
+        .collab-tag .remove{cursor:pointer;color:var(--danger);font-weight:700;font-size:.9rem;line-height:1}
+        .collab-tag .remove:hover{opacity:.7}
+        /* TOAST */
+        .toast-container{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:1000}
+        .toast{padding:10px 18px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.83rem;box-shadow:var(--shadow);animation:slideIn .3s ease,fadeOut .3s ease 2.7s;max-width:340px}
+        @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+        @keyframes fadeOut{from{opacity:1}to{opacity:0}}
+        ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+    </style>
+</head>
+<body>
+    <!-- AUTH SCREEN -->
+    <div id="authScreen" class="auth-container">
+        <div class="auth-box">
+            <h1>CollabNotes</h1>
+            <p>Real-time collaboration for shared notes</p>
+            <div id="authError" class="auth-error hidden"></div>
+            <div id="loginForm">
+                <div class="form-group"><label>Username</label><input type="text" id="loginUsername" autocomplete="username"></div>
+                <div class="form-group"><label>Password</label><input type="password" id="loginPassword" autocomplete="current-password"></div>
+                <button class="auth-btn" onclick="doLogin()">Sign In</button>
+                <div class="auth-switch">Don't have an account? <a onclick="showRegister()">Register</a></div>
+            </div>
+            <div id="registerForm" class="hidden">
+                <div class="form-group"><label>Username</label><input type="text" id="regUsername" autocomplete="username"></div>
+                <div class="form-group"><label>Display Name</label><input type="text" id="regDisplayName"></div>
+                <div class="form-group"><label>Password</label><input type="password" id="regPassword" autocomplete="new-password"></div>
+                <button class="auth-btn" onclick="doRegister()">Register</button>
+                <div class="auth-switch">Already registered? <a onclick="showLogin()">Sign In</a></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- APP SCREEN -->
+    <div id="appScreen" class="hidden" style="display:flex;flex-direction:column;flex:1">
+        <header>
+            <div class="logo">CollabNotes</div>
+            <div class="header-right">
+                <div class="connection-status"><span class="status-dot" id="statusDot"></span><span id="statusText">Connecting...</span></div>
+                <div class="user-info">
+                    <div class="avatar" id="userAvatar"></div>
+                    <span id="userDisplayName"></span>
+                </div>
+                <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+            </div>
+        </header>
+        <div class="main-layout">
+            <aside class="sidebar">
+                <div class="tabs">
+                    <div class="tab active" id="tabMy" onclick="switchTab('my')">My Notes</div>
+                    <div class="tab" id="tabShared" onclick="switchTab('shared')">Shared with Me</div>
+                </div>
+                <div class="sidebar-header">
+                    <h2 id="sidebarTitle">My Notes</h2>
+                    <button class="btn btn-primary btn-sm" id="btnNewNote" onclick="createNote()">+ New</button>
+                </div>
+                <div class="note-list" id="noteList"></div>
+            </aside>
+            <main class="editor-area">
+                <div class="empty-state" id="emptyState">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    <p>Create or select a note</p>
+                </div>
+                <div id="editorContent" class="hidden" style="flex-direction:column;flex:1;overflow:hidden">
+                    <div class="editor-toolbar">
+                        <div class="active-users" id="activeUsers"></div>
+                        <div style="display:flex;gap:8px">
+                            <button class="btn btn-danger btn-sm" id="btnDelete" onclick="deleteCurrentNote()">Delete</button>
+                        </div>
+                    </div>
+                    <input type="text" class="title-input" id="titleInput" placeholder="Enter title...">
+                    <div class="typing-indicator" id="typingIndicator"></div>
+                    <textarea class="content-editor" id="contentEditor" placeholder="Start writing here..."></textarea>
+                    <div class="collab-panel" id="collabPanel">
+                        <h3>Invite Collaborators</h3>
+                        <div class="collab-input-row">
+                            <input type="text" id="collabInput" placeholder="Enter username...">
+                            <button class="btn btn-primary btn-sm" onclick="addCollaborator()">Add</button>
+                        </div>
+                        <div class="collab-list" id="collabList"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+    const API = '/api';
+    let connection = null;
+    let currentUser = null;
+    let myNotes = [];
+    let sharedNotes = [];
+    let activeTab = 'my';
+    let activeNoteId = null;
+    let activeNote = null;
+    let typingTimeout = null;
+    let saveTimeout = null;
+    let saveTitleTimeout = null;
+    let isRemoteUpdate = false;
+
+    function headers(extra = {}) {
+        return { 'Content-Type': 'application/json', 'X-User-Id': currentUser?.id || '', ...extra };
+    }
+    function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+    function toast(m) { const c = document.getElementById('toastContainer'), t = document.createElement('div'); t.className='toast'; t.textContent=m; c.appendChild(t); setTimeout(()=>t.remove(),3000); }
+    function color(n) { let h=0; for(let i=0;i<n.length;i++) h=n.charCodeAt(i)+((h<<5)-h); return `hsl(${Math.abs(h)%360},65%,50%)`; }
+    function fmtDate(d) { return new Date(d).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+
+    // AUTH
+    function showLogin() { document.getElementById('loginForm').classList.remove('hidden'); document.getElementById('registerForm').classList.add('hidden'); hideAuthError(); }
+    function showRegister() { document.getElementById('loginForm').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden'); hideAuthError(); }
+    function showAuthError(msg) { const e=document.getElementById('authError'); e.textContent=msg; e.classList.remove('hidden'); }
+    function hideAuthError() { document.getElementById('authError').classList.add('hidden'); }
+
+    async function doLogin() {
+        hideAuthError();
+        const u = document.getElementById('loginUsername').value.trim();
+        const p = document.getElementById('loginPassword').value;
+        if (!u||!p) { showAuthError('Please fill in all fields.'); return; }
+        try {
+            const res = await fetch(`${API}/auth/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u,password:p}) });
+            if (!res.ok) { const e = await res.json(); showAuthError(e.errors?.[0]||'Login failed.'); return; }
+            currentUser = await res.json();
+            localStorage.setItem('collabUser', JSON.stringify(currentUser));
+            enterApp();
+        } catch { showAuthError('Connection error.'); }
+    }
+
+    async function doRegister() {
+        hideAuthError();
+        const u = document.getElementById('regUsername').value.trim();
+        const d = document.getElementById('regDisplayName').value.trim();
+        const p = document.getElementById('regPassword').value;
+        if (!u||!d||!p) { showAuthError('Please fill in all fields.'); return; }
+        try {
+            const res = await fetch(`${API}/auth/register`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u,password:p,displayName:d}) });
+            if (!res.ok) { const e = await res.json(); showAuthError(e.errors?.[0]||'Registration failed.'); return; }
+            currentUser = await res.json();
+            localStorage.setItem('collabUser', JSON.stringify(currentUser));
+            enterApp();
+        } catch { showAuthError('Connection error.'); }
+    }
+
+    function doLogout() {
+        localStorage.removeItem('collabUser');
+        currentUser = null;
+        if (connection) connection.stop();
+        document.getElementById('appScreen').classList.add('hidden');
+        document.getElementById('appScreen').style.display = 'none';
+        document.getElementById('authScreen').classList.remove('hidden');
+        document.getElementById('authScreen').style.display = 'flex';
+    }
+
+    function enterApp() {
+        document.getElementById('authScreen').classList.add('hidden');
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('appScreen').classList.remove('hidden');
+        document.getElementById('appScreen').style.display = 'flex';
+        document.getElementById('userDisplayName').textContent = currentUser.displayName;
+        const av = document.getElementById('userAvatar');
+        av.style.background = color(currentUser.displayName);
+        av.textContent = currentUser.displayName.charAt(0).toUpperCase();
+        initApp();
+    }
+
+    // NOTES
+    function getNotes() { return activeTab === 'my' ? myNotes : sharedNotes; }
+
+    function switchTab(tab) {
+        activeTab = tab;
+        document.getElementById('tabMy').classList.toggle('active', tab==='my');
+        document.getElementById('tabShared').classList.toggle('active', tab==='shared');
+        document.getElementById('sidebarTitle').textContent = tab==='my' ? 'My Notes' : 'Shared with Me';
+        document.getElementById('btnNewNote').classList.toggle('hidden', tab!=='my');
+        renderNoteList();
+        if (activeNoteId) {
+            const notes = getNotes();
+            if (!notes.find(n => n.id === activeNoteId)) {
+                activeNoteId = null; activeNote = null; showEditor(false);
+            }
+        }
+    }
+
+    function renderNoteList() {
+        const notes = getNotes();
+        const list = document.getElementById('noteList');
+        if (notes.length === 0) {
+            list.innerHTML = `<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:.85rem">${activeTab==='my'?'No notes created yet.':'No shared notes.'}</div>`;
+            return;
+        }
+        list.innerHTML = notes.map(n => `
+            <div class="note-item ${n.id===activeNoteId?'active':''}" onclick="selectNote('${n.id}')">
+                ${activeTab==='shared'?`<div class="note-item-owner">by ${esc(n.ownerName)}</div>`:''}
+                <div class="note-item-title">${esc(n.title||'Untitled')}</div>
+                <div class="note-item-meta"><span>${esc(n.lastEditedBy)}</span><span>${fmtDate(n.updatedAt)}</span></div>
+            </div>
+        `).join('');
+    }
+
+    function showEditor(show) {
+        document.getElementById('emptyState').style.display = show?'none':'flex';
+        const ec = document.getElementById('editorContent');
+        ec.classList.toggle('hidden', !show);
+        if (show) ec.style.display = 'flex';
+    }
+
+    async function loadNotes() {
+        const [myRes, sharedRes] = await Promise.all([
+            fetch(`${API}/notes/my`, { headers: headers() }),
+            fetch(`${API}/notes/shared`, { headers: headers() })
+        ]);
+        myNotes = await myRes.json();
+        sharedNotes = await sharedRes.json();
+        renderNoteList();
+    }
+
+    async function createNote() {
+        const res = await fetch(`${API}/notes`, {
+            method:'POST', headers: headers(),
+            body: JSON.stringify({ title:'New Note', content:'', createdBy: currentUser.displayName })
+        });
+        if (!res.ok) { toast('Failed to create note.'); return; }
+        const note = await res.json();
+        if (activeTab !== 'my') switchTab('my');
+        selectNote(note.id);
+    }
+
+    async function selectNote(id) {
+        if (activeNoteId && activeNoteId !== id && connection) {
+            try { await connection.invoke('LeaveNote', activeNoteId, currentUser.displayName); } catch {}
+        }
+        activeNoteId = id;
+        const res = await fetch(`${API}/notes/${id}`, { headers: headers() });
+        if (!res.ok) { toast('Failed to load note.'); return; }
+        activeNote = await res.json();
+        document.getElementById('titleInput').value = activeNote.title;
+        document.getElementById('contentEditor').value = activeNote.content;
+        const isOwner = activeNote.ownerId === currentUser.id;
+        document.getElementById('btnDelete').classList.toggle('hidden', !isOwner);
+        document.getElementById('collabPanel').classList.toggle('hidden', !isOwner);
+        renderCollaborators();
+        showEditor(true);
+        renderNoteList();
+        if (connection) {
+            try { await connection.invoke('JoinNote', id, currentUser.displayName); } catch {}
+        }
+    }
+
+    async function deleteCurrentNote() {
+        if (!activeNoteId) return;
+        if (!confirm('Really delete this note?')) return;
+        await fetch(`${API}/notes/${activeNoteId}`, { method:'DELETE', headers: headers() });
+        myNotes = myNotes.filter(n=>n.id!==activeNoteId);
+        sharedNotes = sharedNotes.filter(n=>n.id!==activeNoteId);
+        activeNoteId = null; activeNote = null;
+        showEditor(false);
+        renderNoteList();
+    }
+
+    // COLLABORATORS
+    function renderCollaborators() {
+        const list = document.getElementById('collabList');
+        if (!activeNote || !activeNote.collaborators) { list.innerHTML=''; return; }
+        list.innerHTML = activeNote.collaborators.map(c => `
+            <span class="collab-tag">
+                <span style="color:${color(c.displayName)};font-weight:700">${esc(c.displayName)}</span>
+                <span>(${esc(c.username)})</span>
+                <span class="remove" onclick="removeCollaborator('${c.userId}')">&times;</span>
+            </span>
+        `).join('');
+    }
+
+    async function addCollaborator() {
+        const input = document.getElementById('collabInput');
+        const username = input.value.trim();
+        if (!username) return;
+        const res = await fetch(`${API}/notes/${activeNoteId}/collaborators`, {
+            method:'POST', headers: headers(),
+            body: JSON.stringify({ username })
+        });
+        if (!res.ok) { const e = await res.json(); toast(e.errors?.[0]||'Failed to add collaborator.'); return; }
+        activeNote = await res.json();
+        renderCollaborators();
+        input.value = '';
+        toast(`${username} added!`);
+    }
+
+    async function removeCollaborator(userId) {
+        const res = await fetch(`${API}/notes/${activeNoteId}/collaborators/${userId}`, {
+            method:'DELETE', headers: headers()
+        });
+        if (!res.ok) { toast('Failed to remove collaborator.'); return; }
+        activeNote = await res.json();
+        renderCollaborators();
+        toast('Collaborator removed.');
+    }
+
+    // EDITOR
+    function setupEditor() {
+        const ce = document.getElementById('contentEditor');
+        const ti = document.getElementById('titleInput');
+        ce.addEventListener('input', () => {
+            if (isRemoteUpdate) return;
+            if (connection) connection.invoke('SendContentEdit', activeNoteId, ce.value, currentUser.displayName);
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(async () => {
+                await fetch(`${API}/notes/${activeNoteId}/content`, { method:'PUT', headers:headers(), body:JSON.stringify({content:ce.value,editedBy:currentUser.displayName}) });
+                updateLocalNote(activeNoteId, { content:ce.value, lastEditedBy:currentUser.displayName });
+            }, 800);
+        });
+        ti.addEventListener('input', () => {
+            if (isRemoteUpdate) return;
+            if (connection) connection.invoke('SendTitleEdit', activeNoteId, ti.value, currentUser.displayName);
+            clearTimeout(saveTitleTimeout);
+            saveTitleTimeout = setTimeout(async () => {
+                await fetch(`${API}/notes/${activeNoteId}/title`, { method:'PUT', headers:headers(), body:JSON.stringify({title:ti.value,editedBy:currentUser.displayName}) });
+                updateLocalNote(activeNoteId, { title:ti.value, lastEditedBy:currentUser.displayName });
+            }, 800);
+        });
+    }
+
+    function updateLocalNote(id, updates) {
+        for (const arr of [myNotes, sharedNotes]) {
+            const n = arr.find(x=>x.id===id);
+            if (n) Object.assign(n, updates, { updatedAt: new Date().toISOString() });
+        }
+        renderNoteList();
+    }
+
+    function updateActiveUsers(users) {
+        document.getElementById('activeUsers').innerHTML = users.map(u =>
+            `<span class="user-badge" style="background:${color(u)}" title="${esc(u)}">${esc(u.charAt(0).toUpperCase())}</span>`
+        ).join('');
+    }
+
+    // SIGNALR
+    async function initSignalR() {
+        connection = new signalR.HubConnectionBuilder()
+            .withUrl('/hubs/collaboration')
+            .withAutomaticReconnect([0,2000,5000,10000,30000])
+            .configureLogging(signalR.LogLevel.Warning)
+            .build();
+
+        connection.on('NoteCreated', n => {
+            if (n.ownerId === currentUser.id && !myNotes.find(x=>x.id===n.id)) { myNotes.unshift(n); }
+            if (n.collaborators?.some(c=>c.userId===currentUser.id) && !sharedNotes.find(x=>x.id===n.id)) { sharedNotes.unshift(n); }
+            renderNoteList();
+        });
+        connection.on('NoteUpdated', n => { updateLocalNote(n.id, n); });
+        connection.on('NoteDeleted', id => {
+            myNotes = myNotes.filter(n=>n.id!==id);
+            sharedNotes = sharedNotes.filter(n=>n.id!==id);
+            if (activeNoteId===id) { activeNoteId=null; activeNote=null; showEditor(false); toast('Note was deleted.'); }
+            renderNoteList();
+        });
+        connection.on('UserJoined', (noteId, userName, users) => {
+            if (noteId===activeNoteId) { updateActiveUsers(users); if(userName!==currentUser.displayName) toast(`${userName} joined`); }
+        });
+        connection.on('UserLeft', (noteId, userName, users) => {
+            if (noteId===activeNoteId) { updateActiveUsers(users); if(userName!==currentUser.displayName) toast(`${userName} left`); }
+        });
+        connection.on('ContentEdited', (noteId, content, editedBy) => {
+            if (noteId===activeNoteId) {
+                isRemoteUpdate=true;
+                const ed=document.getElementById('contentEditor'), s=ed.selectionStart, e=ed.selectionEnd, pl=ed.value.length;
+                ed.value=content; const diff=ed.value.length-pl; ed.selectionStart=s+diff; ed.selectionEnd=e+diff;
+                isRemoteUpdate=false;
+                document.getElementById('typingIndicator').textContent=`${editedBy} is typing...`;
+                clearTimeout(typingTimeout); typingTimeout=setTimeout(()=>{document.getElementById('typingIndicator').textContent='';},2000);
+            }
+        });
+        connection.on('TitleEdited', (noteId, title, editedBy) => {
+            if (noteId===activeNoteId) { isRemoteUpdate=true; document.getElementById('titleInput').value=title; isRemoteUpdate=false; }
+            updateLocalNote(noteId, { title });
+        });
+        connection.on('CollaboratorAdded', n => {
+            if (!sharedNotes.find(x=>x.id===n.id)) { sharedNotes.unshift(n); }
+            renderNoteList();
+            toast(`You were invited to "${n.title}"!`);
+        });
+        connection.on('CollaboratorRemoved', noteId => {
+            sharedNotes = sharedNotes.filter(n=>n.id!==noteId);
+            if (activeNoteId===noteId) { activeNoteId=null; activeNote=null; showEditor(false); toast('Your access was revoked.'); }
+            renderNoteList();
+        });
+        connection.onreconnecting(()=>{ document.getElementById('statusDot').classList.remove('connected'); document.getElementById('statusText').textContent='Reconnecting...'; });
+        connection.onreconnected(async()=>{ document.getElementById('statusDot').classList.add('connected'); document.getElementById('statusText').textContent='Connected'; await loadNotes(); if(activeNoteId) connection.invoke('JoinNote',activeNoteId,currentUser.displayName); });
+        connection.onclose(()=>{ document.getElementById('statusDot').classList.remove('connected'); document.getElementById('statusText').textContent='Disconnected'; });
+        try { await connection.start(); document.getElementById('statusDot').classList.add('connected'); document.getElementById('statusText').textContent='Connected'; await connection.invoke('JoinUserGroup', currentUser.id); }
+        catch(err) { console.error('SignalR failed:',err); document.getElementById('statusText').textContent='Error'; }
+    }
+
+    async function initApp() {
+        setupEditor();
+        await initSignalR();
+        await loadNotes();
+    }
+
+    window.addEventListener('beforeunload', ()=>{ if(activeNoteId&&connection) connection.invoke('LeaveNote',activeNoteId,currentUser.displayName); });
+
+    // AUTO-LOGIN
+    const saved = localStorage.getItem('collabUser');
+    if (saved) { currentUser = JSON.parse(saved); enterApp(); }
+    </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Application\bin\Debug\net10.0\CollabNotes.Application.deps.json
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Application\bin\Debug\net10.0\CollabNotes.Application.dll
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Application\bin\Debug\net10.0\CollabNotes.Application.pdb
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Application\bin\Debug\net10.0\CollabNotes.Domain.dll
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Application\bin\Debug\net10.0\CollabNotes.Domain.pdb
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Application\obj\Debug\net10.0\CollabNotes.Application.csproj.AssemblyReference.cache
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Application\obj\Debug\net10.0\CollabNotes.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Application\obj\Debug\net10.0\CollabNotes.Application.AssemblyInfoInputs.cache
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Application\obj\Debug\net10.0\CollabNotes.Application.AssemblyInfo.cs
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Application\obj\Debug\net10.0\CollabNotes.Application.csproj.CoreCompileInputs.cache
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Application\obj\Debug\net10.0\CollabNo.A326AD64.Up2Date
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Application\obj\Debug\net10.0\CollabNotes.Application.dll
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Application\obj\Debug\net10.0\refint\CollabNotes.Application.dll
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Application\obj\Debug\net10.0\CollabNotes.Application.pdb
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Application\obj\Debug\net10.0\ref\CollabNotes.Application.dll

@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CollabNotes.API/CollabNotes.API.csproj" />
+    <Project Path="src/CollabNotes.Application/CollabNotes.Application.csproj" />
+    <Project Path="src/CollabNotes.Domain/CollabNotes.Domain.csproj" />
+    <Project Path="src/CollabNotes.Infrastructure/CollabNotes.Infrastructure.csproj" />
+  </Folder>
+</Solution>

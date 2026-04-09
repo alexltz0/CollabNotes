@@ -1,0 +1,11 @@
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Domain\bin\Debug\net10.0\CollabNotes.Domain.deps.json
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Domain\bin\Debug\net10.0\CollabNotes.Domain.dll
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Domain\bin\Debug\net10.0\CollabNotes.Domain.pdb
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Domain\obj\Debug\net10.0\CollabNotes.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Domain\obj\Debug\net10.0\CollabNotes.Domain.AssemblyInfoInputs.cache
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Domain\obj\Debug\net10.0\CollabNotes.Domain.AssemblyInfo.cs
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Domain\obj\Debug\net10.0\CollabNotes.Domain.csproj.CoreCompileInputs.cache
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Domain\obj\Debug\net10.0\CollabNotes.Domain.dll
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Domain\obj\Debug\net10.0\refint\CollabNotes.Domain.dll
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Domain\obj\Debug\net10.0\CollabNotes.Domain.pdb
+C:\Users\120300002025\CascadeProjects\realtime-colaboration\src\CollabNotes.Domain\obj\Debug\net10.0\ref\CollabNotes.Domain.dll

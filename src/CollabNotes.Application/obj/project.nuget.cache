@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "2DH9z+Z1vyU=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\120300002025\\CascadeProjects\\realtime-colaboration\\src\\CollabNotes.Application\\CollabNotes.Application.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\120300002025\\.nuget\\packages\\fluentvalidation\\11.11.0\\fluentvalidation.11.11.0.nupkg.sha512",
+    "C:\\Users\\120300002025\\.nuget\\packages\\fluentvalidation.dependencyinjectionextensions\\11.11.0\\fluentvalidation.dependencyinjectionextensions.11.11.0.nupkg.sha512",
+    "C:\\Users\\120300002025\\.nuget\\packages\\mediatr\\12.4.1\\mediatr.12.4.1.nupkg.sha512",
+    "C:\\Users\\120300002025\\.nuget\\packages\\mediatr.contracts\\2.0.1\\mediatr.contracts.2.0.1.nupkg.sha512",
+    "C:\\Users\\120300002025\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\9.0.0\\microsoft.extensions.dependencyinjection.abstractions.9.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
