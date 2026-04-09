@@ -2,6 +2,8 @@
 
 A real-time collaboration tool for shared notes with **user accounts**, **private notes**, and an **invitation system**, built with **ASP.NET Core**, **SignalR**, **CQRS Pattern**, and **Clean Architecture**.
 
+🌐 **Portfolio & Docs:** [https://alexltz0.github.io/CollabNotes/](https://alexltz0.github.io/CollabNotes/)
+
 ## Architecture
 
 ```
